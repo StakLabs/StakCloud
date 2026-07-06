@@ -25,7 +25,7 @@ app.get('/', (req, res) => {
     res.send('API is working');
 });
 
-app.get('/files/:user', (req, res) => {
+app.get('/Files/:user', (req, res) => {
     const user = req.params.user;
     const query = 'SELECT * FROM files WHERE user = ?';
     db.query(query, [user], (err, results) => {
