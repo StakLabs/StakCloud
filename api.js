@@ -18,8 +18,10 @@ const db = mysql.createConnection({
 });
 
 db.connect(err => {
-    if (err) throw err;
-    console.log('Connected to MySQL database');
+if (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Database error' });
+}    console.log('Connected to MySQL database');
 });
 app.get('/', (req, res) => {
     res.send('API is working');
@@ -29,8 +31,10 @@ app.get('/Files/:user', (req, res) => {
     const user = req.params.user;
     const query = 'SELECT * FROM files WHERE user = ?';
     db.query(query, [user], (err, results) => {
-        if (err) throw err;
-        res.json(results);
+if (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Database error' });
+}        res.json(results);
     });
     
 });
