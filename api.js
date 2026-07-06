@@ -29,7 +29,7 @@ app.get('/', (req, res) => {
 
 app.get('/Files/:user', (req, res) => {
     const user = req.params.user;
-    const query = 'SELECT * FROM files WHERE user = ?';
+    const query = 'SELECT * FROM Files WHERE user = ?';
     db.query(query, [user], (err, results) => {
 if (err) {
     console.error(err);
