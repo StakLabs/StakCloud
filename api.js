@@ -35,6 +35,11 @@ app.get('/files/:user', (req, res) => {
     
 });
 
+app.get('/ping', (req, res) => {
+    console.log('/ping');
+    res.send('Pong');
+});
+
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
