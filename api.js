@@ -47,3 +47,8 @@ app.get('/ping', (req, res) => {
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
+
+const pinging = 'https://stakcloudonrender.com/ping';
+setInterval(() => {
+  fetch(pinging).catch(() => {});
+}, 10 * 60 * 1000);
