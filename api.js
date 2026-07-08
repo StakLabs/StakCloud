@@ -39,8 +39,8 @@ if (err) {
     
 });
 
-app.post('/Files/:fileInfo', (req, res) => {
-    const fileInfo = JSON.parse(req.params.fileInfo);
+app.post('/Files/', (req, res) => {
+    const fileInfo = req.body;
     const query = 'INSERT INTO Files (name, type, path, uploadedAt, fileName, storage) VALUES (?, ?, ?, ?, ?, ?)';
     db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage], (err, results) => {
 if (err) {
