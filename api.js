@@ -41,7 +41,7 @@ if (err) {
 
 app.post('/Files/', (req, res) => {
     const fileInfo = req.body;
-    const query = 'INSERT INTO Files (name, type, path, uploadedAt, fileName, storage) VALUES (?, ?, ?, ?, ?, ?)';
+    const query = 'INSERT INTO Files (name, type, path, uploaded_At, fileName, storage) VALUES (?, ?, ?, ?, ?, ?)';
     db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage], (err, results) => {
 if (err) {
     console.error(err);
@@ -49,7 +49,7 @@ if (err) {
 }        res.json(results);
     });
     
-});
+}); 
 
 app.get('/ping', (req, res) => {
     console.log('/ping');
@@ -60,7 +60,7 @@ app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
 
-const pinging = 'https://stakcloudonrender.com/ping';
+const pinging = 'https://stakcloud.onrender.com/ping';
 setInterval(() => {
   fetch(pinging).catch(() => {});
 }, 10 * 60 * 1000);
