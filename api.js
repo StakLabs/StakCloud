@@ -49,7 +49,19 @@ if (err) {
 }        res.json(results);
     });
     
-}); 
+});
+
+app.post('/Files/delete', (req, res) => {
+    const { name, path } = req.body;
+    const query = 'DELETE FROM Files WHERE name = ? AND path = ?';
+    db.query(query, [name, path], (err, results) => {
+        if (err) {
+            console.error(err);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
+    });
+});
 
 app.get('/ping', (req, res) => {
     console.log('/ping');
