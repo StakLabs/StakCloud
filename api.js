@@ -27,10 +27,22 @@ app.get('/', (req, res) => {
     res.send('API is working');
 });
 
-app.get('/Files/:user', (req, res) => {
+app.get('/Files/user/:user', (req, res) => {
     const user = req.params.user;
     const query = 'SELECT * FROM Files WHERE name = ?';
     db.query(query, [user], (err, results) => {
+if (err) {
+    console.error(err);
+    return res.status(500).json({ error: 'Database error' });
+}        res.json(results);
+    });
+    
+});
+
+app.get('/Files/code/:code', (req, res) => {
+    const code = req.params.code;
+    const query = 'SELECT * FROM Files WHERE code = ?';
+    db.query(query, [code], (err, results) => {
 if (err) {
     console.error(err);
     return res.status(500).json({ error: 'Database error' });
