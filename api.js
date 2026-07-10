@@ -103,7 +103,7 @@ app.put('/Users/shared/:code/:name', (req, res) => {
     const code = req.params.code;
     const name = req.params.name;
     //assuming shared files is an array of file codes stored as a VARCHAR in the database
-    const query = 'UPDATE Users SET sharedFiles = CONCAT(IFNULL(sharedFiles, ""), ?, ",") WHERE name = ?';
+    const query = 'UPDATE Users SET shared_files = CONCAT(IFNULL(shared_files, ""), ?, ",") WHERE name = ?';
     db.query(query, [code, name], (err, results) => {
         if (err) {
             console.error(err.message);
