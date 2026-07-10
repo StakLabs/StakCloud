@@ -18,11 +18,13 @@ const db = mysql.createConnection({
 });
 
 db.connect(err => {
-if (err) {
-    console.error(err.message);
-    return res.status(500).json({ error: 'Database error' });
-}    console.log('Connected to MySQL database');
+    if (err) {
+        console.error(err.message);
+        return res.status(500).json({ error: 'Database error' });
+    }
+    console.log('Connected to MySQL database');
 });
+
 app.get('/', (req, res) => {
     res.send('API is working');
 });
@@ -31,36 +33,36 @@ app.get('/Files/user/:user', (req, res) => {
     const user = req.params.user;
     const query = 'SELECT * FROM Files WHERE name = ?';
     db.query(query, [user], (err, results) => {
-if (err) {
-    console.error(err.message);
-    return res.status(500).json({ error: 'Database error' });
-}        res.json(results);
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
     });
-    
 });
 
 app.get('/Files/code/:code', (req, res) => {
     const code = req.params.code;
     const query = 'SELECT * FROM Files WHERE code = ?';
     db.query(query, [code], (err, results) => {
-if (err) {
-    console.error(err.message);
-    return res.status(500).json({ error: 'Database error' });
-}        res.json(results);
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
     });
-    
 });
 
 app.post('/Files/', (req, res) => {
     const fileInfo = req.body;
     const query = 'INSERT INTO Files (name, type, path, uploaded_At, fileName, storage, code) VALUES (?, ?, ?, ?, ?, ?, ?)';
     db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage, fileInfo.code], (err, results) => {
-if (err) {
-    console.error(err.message);
-    return res.status(500).json({ error: 'Database error' });
-}        res.json(results);
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
     });
-    
 });
 
 app.post('/Files/delete', (req, res) => {
@@ -102,7 +104,6 @@ app.get('/Users/:name', (req, res) => {
 app.put('/Users/shared/:code/:name', (req, res) => {
     const code = req.params.code;
     const name = req.params.name;
-    //assuming shared files is an array of file codes stored as a VARCHAR in the database
     const query = 'UPDATE Users SET shared_files = CONCAT(IFNULL(shared_files, ""), ?, ",") WHERE name = ?';
     db.query(query, [code, name], (err, results) => {
         if (err) {
@@ -124,5 +125,5 @@ app.listen(port, () => {
 
 const pinging = 'https://stakcloud.onrender.com/ping';
 setInterval(() => {
-  fetch(pinging).catch(() => {});
+    fetch(pinging).catch(() => {});
 }, 10 * 60 * 1000);
