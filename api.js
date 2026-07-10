@@ -19,7 +19,7 @@ const db = mysql.createConnection({
 
 db.connect(err => {
 if (err) {
-    console.error(err);
+    console.error(err.message);
     return res.status(500).json({ error: 'Database error' });
 }    console.log('Connected to MySQL database');
 });
@@ -32,7 +32,7 @@ app.get('/Files/user/:user', (req, res) => {
     const query = 'SELECT * FROM Files WHERE name = ?';
     db.query(query, [user], (err, results) => {
 if (err) {
-    console.error(err);
+    console.error(err.message);
     return res.status(500).json({ error: 'Database error' });
 }        res.json(results);
     });
@@ -44,7 +44,7 @@ app.get('/Files/code/:code', (req, res) => {
     const query = 'SELECT * FROM Files WHERE code = ?';
     db.query(query, [code], (err, results) => {
 if (err) {
-    console.error(err);
+    console.error(err.message);
     return res.status(500).json({ error: 'Database error' });
 }        res.json(results);
     });
@@ -56,7 +56,7 @@ app.post('/Files/', (req, res) => {
     const query = 'INSERT INTO Files (name, type, path, uploaded_At, fileName, storage, code) VALUES (?, ?, ?, ?, ?, ?, ?)';
     db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage, fileInfo.code], (err, results) => {
 if (err) {
-    console.error(err);
+    console.error(err.message);
     return res.status(500).json({ error: 'Database error' });
 }        res.json(results);
     });
@@ -68,7 +68,7 @@ app.post('/Files/delete', (req, res) => {
     const query = 'DELETE FROM Files WHERE name = ? AND path = ?';
     db.query(query, [name, path], (err, results) => {
         if (err) {
-            console.error(err);
+            console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
@@ -80,7 +80,7 @@ app.post('/Users/', (req, res) => {
     const query = 'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)';
     db.query(query, [userInfo.name, userInfo.email, userInfo.password], (err, results) => {
         if (err) {
-            console.error(err);
+            console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
@@ -92,7 +92,7 @@ app.get('/Users/:name', (req, res) => {
     const query = 'SELECT * FROM Users WHERE name = ?';
     db.query(query, [name], (err, results) => {
         if (err) {
-            console.error(err);
+            console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
@@ -106,7 +106,7 @@ app.put('/Users/shared/:code/:name', (req, res) => {
     const query = 'UPDATE Users SET sharedFiles = CONCAT(IFNULL(sharedFiles, ""), ?, ",") WHERE name = ?';
     db.query(query, [code, name], (err, results) => {
         if (err) {
-            console.error(err);
+            console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
