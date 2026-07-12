@@ -55,8 +55,8 @@ app.get('/Files/code/:code', (req, res) => {
 
 app.post('/Files/', (req, res) => {
     const fileInfo = req.body;
-    const query = 'INSERT INTO Files (name, type, path, uploaded_At, fileName, storage, code) VALUES (?, ?, ?, ?, ?, ?, ?)';
-    db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage, fileInfo.code], (err, results) => {
+    const query = 'INSERT INTO Files (name, type, path, uploaded_At, fileName, storage, code, project) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
+    db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage, fileInfo.code, fileInfo.project || null], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
