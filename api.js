@@ -66,9 +66,9 @@ app.post('/Files/', (req, res) => {
 });
 
 app.post('/Files/delete', (req, res) => {
-    const { name, path } = req.body;
-    const query = 'DELETE FROM Files WHERE name = ? AND path = ?';
-    db.query(query, [name, path], (err, results) => {
+    const { name, code } = req.body;
+    const query = 'DELETE FROM Files WHERE name = ? AND code = ?';
+    db.query(query, [name, code], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
