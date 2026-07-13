@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CodeCloud</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="prism.css">
+</head>
+<body>
+    <div class="app">
+        <div class="sidebar">
+            <div class="logo">
+                <h1>☁️ CodeCloud</h1>
+            </div>
+            <nav class="projects">
+                <button class="nav-btn active main-nav">Main</button>
+            </nav>
+            <div class="storage">
+                <h4>Storage</h4>
+                <progress value="0" max="3145728"></progress>
+                <p class="total">0MB / 3MB</p>
+            </div>
+        </div>
+        <div class="main">
+            <header>
+                <input type="text" placeholder="View shared files (enter file code)" id="fileCodeInput">
+                <div class="profile">
+                    <div class="avatar"></div>
+                </div>
+            </header>
+            <section class="hero">
+                <h2>Welcome back 👋</h2>
+                <p>Store, organize and access your files from anywhere.</p>
+            </section>
+            <section class="quick-actions">
+                <div class="action-card upload">
+                    <h3>📤 Upload</h3>
+                    <p>Upload files and folders.</p>
+                </div>
+                <input type="file" id="hiddenFileInput" style="display: none;">
+                <div class="action-card newProject">
+                    <h3>📂 New Project</h3>
+                    <p>Create a new project.</p>
+                </div>
+            </section>
+            <section class="files">
+                <h2>Recent Files</h2>
+                <div class="file-grid">
+                </div>
+            </section>
+        </div>
+    </div>
+    <div class="context-menu" id="fileContextMenu">
+        <button id="contextDeleteBtn">🗑 Delete</button>
+        <button id="contextShareBtn">🔗 Copy Share Code</button>
+        <button id="contextViewBtn">👀 View Contents</button>
+        <button id="contextMoveBtn">📁 Move to Project</button>
+        <button id="contextAddBtn" style="display: none;">➕ Add File to Workspace</button>
+    </div>
+    <script src="prism.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
