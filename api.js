@@ -36,8 +36,21 @@ const kumo = {
             }
             console.log('Connected to MySQL database');
         });
+    },
+
+    update: function (table, set, what, where, whatWhere) {
+        const query = `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`
+        this.db.query(query, [what, whatWhere], (err, results) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
+    });
     }
 };
+// Please do not remove branding
+// © StakLabs. All rights reserved.
 
 const port = process.env.PORT || 3000;
 
@@ -114,14 +127,7 @@ app.post('/Files/delete', (req, res) => {
 app.put('/Files/move/:code/:newProject', (req, res) => {
     const code = req.params.code;
     const newProject = req.params.newProject;
-    const query = 'UPDATE Files SET project = ? WHERE code = ?';
-    kumo.db.query(query, [newProject, code], (err, results) => {
-        if (err) {
-            console.error(err.message);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(results);
-    });
+    kumo.update('Files', 'project', newProject, 'code', code);
 });
 
 app.post('/Users/', (req, res) => {
