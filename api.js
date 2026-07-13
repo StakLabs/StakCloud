@@ -152,7 +152,7 @@ setInterval(() => {
 
 // KUMO EXTERNAL LIBRARY DEVELOPED BY STAKLABS
 
-if (!mysql) const mysql = require('mysql2');
+if (!mysql) {const mysql = require('mysql2');}
 
 const kumo = {
     db: null,
