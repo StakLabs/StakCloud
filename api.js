@@ -1,19 +1,19 @@
 // KUMO EXTERNAL LIBRARY DEVELOPED BY STAKLABS
 // WARNING PLUS PRECAUTIONS: ADD AT START OF FILE AND CHECK FOR REPEATING DECLARATIONS
 
-import express from 'express';
+const express = require('express');
 const app = express();
-import cors from 'cors';
+const cors = require('cors');
 app.use(cors());
-import { json } from 'body-parser';
-app.use(json());
-import { createConnection } from 'mysql2';
+const bodyParser = require('body-parser');
+app.use(bodyParser.json());
+const mysql = require('mysql2');
 
 const kumo = {
     db: null,
 
     connect: function (name, host, port, user, password) {
-        this.db = createConnection({
+        this.db = mysql.createConnection({
             host: host,
             port: port,
             user: user,
@@ -34,7 +34,7 @@ const kumo = {
 
 const port = process.env.PORT || 3000;
 
-kumo.connect(databaseName, 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
+kumo.connect('sql12832223', 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
 
 db.connect(err => {
     if (err) {
