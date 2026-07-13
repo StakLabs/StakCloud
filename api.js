@@ -20,13 +20,29 @@ const db = mysql.createConnection({
 db.connect(err => {
     if (err) {
         console.error(err.message);
-        return res.status(500).json({ error: 'Database error' });
+        return;
     }
     console.log('Connected to MySQL database');
 });
 
 app.get('/', (req, res) => {
     res.send('API is working');
+});
+
+app.post('/Users/login', (req, res) => {
+    const { name, password } = req.body;
+    const query = 'SELECT * FROM Users WHERE name = ? AND password = ?';
+    db.query(query, [name, password], (err, results) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        if (results.length > 0) {
+            res.json({ success: true, user: results[0] });
+        } else {
+            res.status(401).json({ success: false, message: 'Invalid credentials' });
+        }
+    });
 });
 
 app.get('/Files/user/:user', (req, res) => {
