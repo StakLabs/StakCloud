@@ -29,20 +29,19 @@ const kumo = {
 
             console.log("Kumo connected");
         });
+        this.db.connect(err => {
+            if (err) {
+                console.error(err.message);
+                return;
+            }
+            console.log('Connected to MySQL database');
+        });
     }
 };
 
 const port = process.env.PORT || 3000;
 
 kumo.connect('sql12832223', 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
-
-db.connect(err => {
-    if (err) {
-        console.error(err.message);
-        return;
-    }
-    console.log('Connected to MySQL database');
-});
 
 app.get('/', (req, res) => {
     res.send('API is working');
