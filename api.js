@@ -77,6 +77,19 @@ app.post('/Files/delete', (req, res) => {
     });
 });
 
+app.put('/Files/move/:code/:newProject', (req, res) => {
+    const code = req.params.code;
+    const newProject = req.params.newProject;
+    const query = 'UPDATE Files SET project = ? WHERE code = ?';
+    db.query(query, [newProject, code], (err, results) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
+    });
+});
+
 app.post('/Users/', (req, res) => {
     const userInfo = req.body;
     const query = 'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)';
