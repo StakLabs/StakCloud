@@ -38,19 +38,36 @@ const kumo = {
         });
     },
 
-    update: function (table, set, what, where, whatWhere) {
-        const query = `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`
+    update: function (table, set, what, where, whatWhere, callback) {
+        const query = `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`;
+
         this.db.query(query, [what, whatWhere], (err, results) => {
-        if (err) {
-            console.error(err.message);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(results);
-    });
+            if (err) {
+                console.error(err.message);
+
+                if (callback) {
+                    callback(err, null);
+                }
+
+                return;
+            }
+
+            if (callback) {
+                callback(null, results);
+            }
+        });
     }
 };
 // Please do not remove branding
 // © StakLabs. All rights reserved.
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
+app.options('*', cors());
 
 const port = process.env.PORT || 3000;
 
