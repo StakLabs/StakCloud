@@ -1,10 +1,36 @@
-const express = require('express');
+// KUMO EXTERNAL LIBRARY DEVELOPED BY STAKLABS
+// WARNING PLUS PRECAUTIONS: ADD AT START OF FILE AND CHECK FOR REPEATING DECLARATIONS
+
+import express from 'express';
 const app = express();
-const cors = require('cors');
+import cors from 'cors';
 app.use(cors());
-const mysql = require('mysql2');
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
+import { json } from 'body-parser';
+app.use(json());
+import { createConnection } from 'mysql2';
+
+const kumo = {
+    db: null,
+
+    connect: function (name, host, port, user, password) {
+        this.db = createConnection({
+            host: host,
+            port: port,
+            user: user,
+            password: password,
+            database: name
+        });
+
+        this.db.connect((error) => {
+            if (error) {
+                console.error("Kumo connection failed:", error.message);
+                return;
+            }
+
+            console.log("Kumo connected");
+        });
+    }
+};
 
 const port = process.env.PORT || 3000;
 
@@ -149,32 +175,3 @@ const pinging = 'https://stakcloud.onrender.com/ping';
 setInterval(() => {
     fetch(pinging).catch(() => {});
 }, 10 * 60 * 1000);
-
-// KUMO EXTERNAL LIBRARY DEVELOPED BY STAKLABS
-
-if (!mysql) {const mysql = require('mysql2');}
-
-const kumo = {
-    db: null,
-
-    connect: function (name, host, port, user, password) {
-        this.db = mysql.createConnection({
-            host: host,
-            port: port,
-            user: user,
-            password: password,
-            database: name
-        });
-
-        this.db.connect((error) => {
-            if (error) {
-                console.error("Kumo connection failed:", error.message);
-                return;
-            }
-
-            console.log("Kumo connected");
-        });
-    }
-};
-
-module.exports = kumo;
