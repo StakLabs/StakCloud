@@ -8,14 +8,7 @@ app.use(bodyParser.json());
 
 const port = process.env.PORT || 3000;
 
-const databaseName = 'sql12832223';
-const db = mysql.createConnection({
-    host: 'sql12.freesqldatabase.com',
-    port: 3306,
-    user: 'sql12832223',
-    password: 'wARtFkTpXe',
-    database: databaseName
-});
+kumo.connect(databaseName, 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
 
 db.connect(err => {
     if (err) {
@@ -156,3 +149,32 @@ const pinging = 'https://stakcloud.onrender.com/ping';
 setInterval(() => {
     fetch(pinging).catch(() => {});
 }, 10 * 60 * 1000);
+
+// KUMO EXTERNAL LIBRARY DEVELOPED BY STAKLABS
+
+const mysql = require('mysql2');
+
+const kumo = {
+    db: null,
+
+    connect: function (name, host, port, user, password) {
+        this.db = mysql.createConnection({
+            host: host,
+            port: port,
+            user: user,
+            password: password,
+            database: name
+        });
+
+        this.db.connect((error) => {
+            if (error) {
+                console.error("Kumo connection failed:", error.message);
+                return;
+            }
+
+            console.log("Kumo connected");
+        });
+    }
+};
+
+module.exports = kumo;
