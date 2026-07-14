@@ -16,6 +16,7 @@ app.use(bodyParser.json());
 const mysql = require('mysql2');
 
 const kumo = {
+    // predefine database connection properties
     db: null,
     name: '',
     host: '',
@@ -23,6 +24,7 @@ const kumo = {
     user: '',
     password: '',
 
+    // define db connection properties
     define: function (name, host, port, user, password) {
         this.name = name;
         this.host = host;
@@ -30,6 +32,8 @@ const kumo = {
         this.user = user;
         this.password = password;
     },
+
+    // connect to the database
     connect: function () {
         this.db = mysql.createConnection({
             host: this.host,
@@ -49,6 +53,7 @@ const kumo = {
         });
     },
 
+    // update db values
     update: function (table, set, what, where, whatWhere, callback, customQuery) {
         const query = customQuery || `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`;
 
@@ -69,6 +74,7 @@ const kumo = {
         });
     },
 
+    // insert values into db
     insert: function (table, columns, values, callback) {
         const placeholders = values.map(() => '?').join(', ');
         const query = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
@@ -86,6 +92,7 @@ const kumo = {
         });
     },
 
+    // select values from db
     select: function (table, columns, whereWhat, whereValues, callback) {
         const query = `SELECT ${columns.join(', ')} FROM ${table} WHERE ${whereWhat}`;
         this.db.query(query, whereValues, (err, results) => {
@@ -102,6 +109,7 @@ const kumo = {
         });
     },
 
+    // delete values from db
     delete: function (table, whereWhat, whereValues, callback) {
         const query = `DELETE FROM ${table} WHERE ${whereWhat}`;
         this.db.query(query, whereValues, (err, results) => {
@@ -115,6 +123,37 @@ const kumo = {
             if (callback) {
                 callback(null, results);
             }
+        });
+    },
+
+    // check whether a specific row exists in db, returns true or false
+    exists: function (table, whereWhat, whereValues, callback) {
+        const query = `SELECT EXISTS(SELECT 1 FROM ${table} WHERE ${whereWhat}) AS exists`;
+
+        this.db.query(query, whereValues, (err, results) => {
+            if (err) {
+                console.error(err.message);
+                if (callback) {
+                    callback(err, null);
+                }
+                return;
+            }
+
+            if (callback) {
+                callback(null, results[0].exists === 1);
+            }
+        });
+    },
+
+    // keeps server alive to prevent downtime commonly caused by free render versions
+    ping: function () {
+        const pinging = 'https://stakcloud.onrender.com/ping';
+        setInterval(() => {
+            fetch(pinging).catch(() => {});
+        }, 10 * 60 * 1000);
+        app.get('/ping', (req, res) => {
+            console.log('/ping');
+            res.send('Pong');
         });
     }
 };
@@ -227,27 +266,27 @@ app.get('/Users/:name', (req, res) => {
 app.put('/Users/shared/:code/:name', (req, res) => {
     const code = req.params.code;
     const name = req.params.name;
-    kumo.update('Users', 'shared_files', code, 'name', name, (err, results) => {
-        if (err) {
-            console.error(err.message);
-            return res.status(500).json({ error: 'Database error' });
-        }
-        res.json(results);
-    }), `UPDATE Users 
-SET shared_files = CONCAT(IFNULL(shared_files, ""), ?, ",")
-WHERE name = ?`
+    kumo.update(
+        'Users',
+        'shared_files',
+        code,
+        'name',
+        name,
+        (err, results) => {
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ error: 'Database error' });
+            }
+            res.json(results);
+        },
+        `UPDATE Users 
+        SET shared_files = CONCAT(IFNULL(shared_files, ""), ?, ",")
+        WHERE name = ?`
+    );
 });
 
-app.get('/ping', (req, res) => {
-    console.log('/ping');
-    res.send('Pong');
-});
+kumo.ping();
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
-
-const pinging = 'https://stakcloud.onrender.com/ping';
-setInterval(() => {
-    fetch(pinging).catch(() => {});
-}, 10 * 60 * 1000);
