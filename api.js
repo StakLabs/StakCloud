@@ -4,7 +4,13 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-app.use(cors());
+
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 const bodyParser = require('body-parser');
 app.use(bodyParser.json());
 const mysql = require('mysql2');
@@ -39,19 +45,12 @@ const kumo = {
                 return;
             }
 
-            console.log("Kumo connected");
-        });
-        this.db.connect(err => {
-            if (err) {
-                console.error(err.message);
-                return;
-            }
-            console.log('Connected to MySQL database');
+            console.log("Kumo connected to MySQL database");
         });
     },
 
-    update: function (table, set, what, where, whatWhere, callback) {
-        const query = `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`;
+    update: function (table, set, what, where, whatWhere, callback, customQuery) {
+        const query = customQuery || `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`;
 
         this.db.query(query, [what, whatWhere], (err, results) => {
             if (err) {
@@ -85,16 +84,42 @@ const kumo = {
                 callback(null, results);
             }
         });
+    },
+
+    select: function (table, columns, whereWhat, whereValues, callback) {
+        const query = `SELECT ${columns.join(', ')} FROM ${table} WHERE ${whereWhat}`;
+        this.db.query(query, whereValues, (err, results) => {
+            if (err) {
+                console.error(err.message);
+                if (callback) {
+                    callback(err, null);
+                }
+                return;
+            }
+            if (callback) {
+                callback(null, results);
+            }
+        });
+    },
+
+    delete: function (table, whereWhat, whereValues, callback) {
+        const query = `DELETE FROM ${table} WHERE ${whereWhat}`;
+        this.db.query(query, whereValues, (err, results) => {
+            if (err) {
+                console.error(err.message);
+                if (callback) {
+                    callback(err, null);
+                }
+                return;
+            }
+            if (callback) {
+                callback(null, results);
+            }
+        });
     }
 };
 // Please do not remove branding
 // © StakLabs. All rights reserved.
-
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
 
 const port = process.env.PORT || 3000;
 
@@ -107,13 +132,12 @@ app.get('/', (req, res) => {
 
 app.post('/Users/login', (req, res) => {
     const { name, password } = req.body;
-    const query = 'SELECT * FROM Users WHERE name = ? AND password = ?';
-    kumo.db.query(query, [name, password], (err, results) => {
+    kumo.select('Users', ['*'], 'name = ? AND password = ?', [name, password], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
         }
-        if (results.length > 0) {
+        if (results && results.length > 0) {
             res.json({ success: true, user: results[0] });
         } else {
             res.status(401).json({ success: false, message: 'Invalid credentials' });
@@ -123,8 +147,7 @@ app.post('/Users/login', (req, res) => {
 
 app.get('/Files/user/:user', (req, res) => {
     const user = req.params.user;
-    const query = 'SELECT * FROM Files WHERE name = ?';
-    kumo.db.query(query, [user], (err, results) => {
+    kumo.select('Files', ['*'], 'name = ?', [user], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
@@ -135,8 +158,7 @@ app.get('/Files/user/:user', (req, res) => {
 
 app.get('/Files/code/:code', (req, res) => {
     const code = req.params.code;
-    const query = 'SELECT * FROM Files WHERE code = ?';
-    kumo.db.query(query, [code], (err, results) => {
+    kumo.select('Files', ['*'], 'code = ?', [code], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
@@ -158,8 +180,7 @@ app.post('/Files/', (req, res) => {
 
 app.post('/Files/delete', (req, res) => {
     const { name, code } = req.body;
-    const query = 'DELETE FROM Files WHERE name = ? AND code = ?';
-    kumo.db.query(query, [name, code], (err, results) => {
+    kumo.delete('Files', 'name = ? AND code = ?', [name, code], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
@@ -183,8 +204,7 @@ app.put('/Files/move/:code/:newProject', (req, res) => {
 
 app.post('/Users/', (req, res) => {
     const userInfo = req.body;
-    const query = 'INSERT INTO Users (name, email, password) VALUES (?, ?, ?)';
-    kumo.db.query(query, [userInfo.name, userInfo.email, userInfo.password], (err, results) => {
+    kumo.insert('Users', ['name', 'email', 'password'], [userInfo.name, userInfo.email, userInfo.password], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
@@ -195,8 +215,7 @@ app.post('/Users/', (req, res) => {
 
 app.get('/Users/:name', (req, res) => {
     const name = req.params.name;
-    const query = 'SELECT * FROM Users WHERE name = ?';
-    kumo.db.query(query, [name], (err, results) => {
+    kumo.select('Users', ['*'], 'name = ?', [name], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
@@ -208,14 +227,15 @@ app.get('/Users/:name', (req, res) => {
 app.put('/Users/shared/:code/:name', (req, res) => {
     const code = req.params.code;
     const name = req.params.name;
-    const query = 'UPDATE Users SET shared_files = CONCAT(IFNULL(shared_files, ""), ?, ",") WHERE name = ?';
-    kumo.db.query(query, [code, name], (err, results) => {
+    kumo.update('Users', 'shared_files', code, 'name', name, (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
         }
         res.json(results);
-    });
+    }), `UPDATE Users 
+SET shared_files = CONCAT(IFNULL(shared_files, ""), ?, ",")
+WHERE name = ?`
 });
 
 app.get('/ping', (req, res) => {
