@@ -67,8 +67,6 @@ app.use(cors({
     allowedHeaders: ['Content-Type', 'Authorization']
 }));
 
-app.options('*', cors());
-
 const port = process.env.PORT || 3000;
 
 kumo.connect('sql12832223', 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
