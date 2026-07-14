@@ -11,14 +11,26 @@ const mysql = require('mysql2');
 
 const kumo = {
     db: null,
+    name: '',
+    host: '',
+    port: '',
+    user: '',
+    password: '',
 
-    connect: function (name, host, port, user, password) {
+    define: function (name, host, port, user, password) {
+        this.name = name;
+        this.host = host;
+        this.port = port;
+        this.user = user;
+        this.password = password;
+    },
+    connect: function () {
         this.db = mysql.createConnection({
-            host: host,
-            port: port,
-            user: user,
-            password: password,
-            database: name
+            host: this.host,
+            port: this.port,
+            user: this.user,
+            password: this.password,
+            database: this.name
         });
 
         this.db.connect((error) => {
@@ -56,6 +68,23 @@ const kumo = {
                 callback(null, results);
             }
         });
+    },
+
+    insert: function (table, columns, values, callback) {
+        const placeholders = values.map(() => '?').join(', ');
+        const query = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
+        this.db.query(query, values, (err, results) => {
+            if (err) {
+                console.error(err.message);
+                if (callback) {
+                    callback(err, null);
+                }
+                return;
+            }
+            if (callback) {
+                callback(null, results);
+            }
+        });
     }
 };
 // Please do not remove branding
@@ -69,7 +98,8 @@ app.use(cors({
 
 const port = process.env.PORT || 3000;
 
-kumo.connect('sql12832223', 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
+kumo.define('sql12832223', 'sql12.freesqldatabase.com', 3306, 'sql12832223', 'wARtFkTpXe');
+kumo.connect();
 
 app.get('/', (req, res) => {
     res.send('API is working');
@@ -117,8 +147,7 @@ app.get('/Files/code/:code', (req, res) => {
 
 app.post('/Files/', (req, res) => {
     const fileInfo = req.body;
-    const query = 'INSERT INTO Files (name, type, path, uploaded_At, fileName, storage, code, project) VALUES (?, ?, ?, ?, ?, ?, ?, ?)';
-    kumo.db.query(query, [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage, fileInfo.code, fileInfo.project || null], (err, results) => {
+    kumo.insert('Files', ['name', 'type', 'path', 'uploaded_At', 'fileName', 'storage', 'code', 'project'], [fileInfo.name, fileInfo.type, fileInfo.path, fileInfo.uploadedAt, fileInfo.fileName, fileInfo.storage, fileInfo.code, fileInfo.project || null], (err, results) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ error: 'Database error' });
@@ -142,7 +171,14 @@ app.post('/Files/delete', (req, res) => {
 app.put('/Files/move/:code/:newProject', (req, res) => {
     const code = req.params.code;
     const newProject = req.params.newProject;
-    kumo.update('Files', 'project', newProject, 'code', code);
+
+    kumo.update('Files', 'project', newProject, 'code', code, (err, results) => {
+        if (err) {
+            return res.status(500).json({ error: 'Database error' });
+        }
+
+        res.json(results);
+    });
 });
 
 app.post('/Users/', (req, res) => {
