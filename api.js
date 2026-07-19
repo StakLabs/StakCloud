@@ -1,162 +1,12 @@
-// KUMO EXTERNAL LIBRARY DEVELOPED BY STAKLABS
+// KUMO v1.0 EXTERNAL LIBRARY DEVELOPED BY STAKLABS
 // WARNING PLUS PRECAUTIONS: ADD AT START OF FILE AND CHECK FOR REPEATING DECLARATIONS
-
-const express = require('express');
-const app = express();
-const cors = require('cors');
-
-app.use(cors({
-    origin: '*',
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: ['Content-Type', 'Authorization']
-}));
-
-const bodyParser = require('body-parser');
-app.use(bodyParser.json());
-const mysql = require('mysql2');
-
-const kumo = {
-    // predefine database connection properties
-    db: null,
-    name: '',
-    host: '',
-    port: '',
-    user: '',
-    password: '',
-
-    // define db connection properties
-    define: function (name, host, port, user, password) {
-        this.name = name;
-        this.host = host;
-        this.port = port;
-        this.user = user;
-        this.password = password;
-    },
-
-    // connect to the database
-    connect: function () {
-        this.db = mysql.createConnection({
-            host: this.host,
-            port: this.port,
-            user: this.user,
-            password: this.password,
-            database: this.name
-        });
-
-        this.db.connect((error) => {
-            if (error) {
-                console.error("Kumo connection failed:", error.message);
-                return;
-            }
-
-            console.log("Kumo connected to MySQL database");
-        });
-    },
-
-    // update db values
-    update: function (table, set, what, where, whatWhere, callback, customQuery) {
-        const query = customQuery || `UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`;
-
-        this.db.query(query, [what, whatWhere], (err, results) => {
-            if (err) {
-                console.error(err.message);
-
-                if (callback) {
-                    callback(err, null);
-                }
-
-                return;
-            }
-
-            if (callback) {
-                callback(null, results);
-            }
-        });
-    },
-
-    // insert values into db
-    insert: function (table, columns, values, callback) {
-        const placeholders = values.map(() => '?').join(', ');
-        const query = `INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;
-        this.db.query(query, values, (err, results) => {
-            if (err) {
-                console.error(err.message);
-                if (callback) {
-                    callback(err, null);
-                }
-                return;
-            }
-            if (callback) {
-                callback(null, results);
-            }
-        });
-    },
-
-    // select values from db
-    select: function (table, columns, whereWhat, whereValues, callback) {
-        const query = `SELECT ${columns.join(', ')} FROM ${table} WHERE ${whereWhat}`;
-        this.db.query(query, whereValues, (err, results) => {
-            if (err) {
-                console.error(err.message);
-                if (callback) {
-                    callback(err, null);
-                }
-                return;
-            }
-            if (callback) {
-                callback(null, results);
-            }
-        });
-    },
-
-    // delete values from db
-    delete: function (table, whereWhat, whereValues, callback) {
-        const query = `DELETE FROM ${table} WHERE ${whereWhat}`;
-        this.db.query(query, whereValues, (err, results) => {
-            if (err) {
-                console.error(err.message);
-                if (callback) {
-                    callback(err, null);
-                }
-                return;
-            }
-            if (callback) {
-                callback(null, results);
-            }
-        });
-    },
-
-    // check whether a specific row exists in db, returns true or false
-    exists: function (table, whereWhat, whereValues, callback) {
-        const query = `SELECT EXISTS(SELECT 1 FROM ${table} WHERE ${whereWhat}) AS exists`;
-
-        this.db.query(query, whereValues, (err, results) => {
-            if (err) {
-                console.error(err.message);
-                if (callback) {
-                    callback(err, null);
-                }
-                return;
-            }
-
-            if (callback) {
-                callback(null, results[0].exists === 1);
-            }
-        });
-    },
-
-    // keeps server alive to prevent downtime commonly caused by free render versions
-    ping: function () {
-        const pinging = 'https://stakcloud.onrender.com/ping';
-        setInterval(() => {
-            fetch(pinging).catch(() => {});
-        }, 10 * 60 * 1000);
-        app.get('/ping', (req, res) => {
-            console.log('/ping');
-            res.send('Pong');
-        });
-    }
-};
+const express=require('express');const app=express();const cors=require('cors');app.use(cors({origin:'*',methods:['GET','POST','PUT','DELETE','OPTIONS'],allowedHeaders:['Content-Type','Authorization']}));const bodyParser=require('body-parser');app.use(bodyParser.json());const mysql=require('mysql2');
+const kumo={db:null,name:'',host:'',port:'',user:'',password:'',define:function(name,host,port,user,password){this.name=name;this.host=host;this.port=port;this.user=user;this.password=password},connect:function(){this.db=mysql.createConnection({host:this.host,port:this.port,user:this.user,password:this.password,database:this.name});this.db.connect(error=>{if(error){console.error("Kumo connection failed:",error.message);return}console.log("Kumo connected to MySQL database")})},
+update:function(table,set,what,where,whatWhere,callback,customQuery){const query=customQuery||`UPDATE ${table} SET ${set} = ? WHERE ${where} = ?`;this.db.query(query,[what,whatWhere],(err,results)=>{if(err){console.error(err.message);if(callback)callback(err,null);return}if(callback)callback(null,results)})},
+insert:function(table,columns,values,callback){const placeholders=values.map(()=>'?').join(', ');const query=`INSERT INTO ${table} (${columns.join(', ')}) VALUES (${placeholders})`;this.db.query(query,values,(err,results)=>{if(err){console.error(err.message);if(callback)callback(err,null);return}if(callback)callback(null,results)})},
+select:function(table,columns,whereWhat,whereValues,callback){const query=`SELECT ${columns.join(', ')} FROM ${table} WHERE ${whereWhat}`;this.db.query(query,whereValues,(err,results)=>{if(err){console.error(err.message);if(callback)callback(err,null);return}if(callback)callback(null,results)})},delete:function(table,whereWhat,whereValues,callback){const query=`DELETE FROM ${table} WHERE ${whereWhat}`;this.db.query(query,whereValues,(err,results)=>{if(err){console.error(err.message);if(callback)callback(err,null);return}if(callback)callback(null,results)})},
+exists:function(table,whereWhat,whereValues,callback){const query=`SELECT EXISTS(SELECT 1 FROM ${table} WHERE ${whereWhat}) AS exists`;this.db.query(query,whereValues,(err,results)=>{if(err){console.error(err.message);if(callback)callback(err,null);return}if(callback)callback(null,results[0].exists===1)})},
+ping:function(){const pinging='https://stakcloud.onrender.com/ping';setInterval(()=>{fetch(pinging).catch(()=>{})},10*60*1000);app.get('/ping',(req,res)=>{console.log('/ping');res.send('Pong')})},table:function(tableName){return{drop:function(){const query=`DROP TABLE IF EXISTS ${tableName}`;this.db.query(query)},truncate:function(){const query=`TRUNCATE TABLE ${tableName}`;this.db.query(query)}}}};
 // Please do not remove branding
 // © StakLabs. All rights reserved.
 
@@ -181,6 +31,19 @@ app.post('/Users/login', (req, res) => {
         } else {
             res.status(401).json({ success: false, message: 'Invalid credentials' });
         }
+    });
+});
+
+// Fetch all files associated with a specific project
+app.get('/Files/project/:projectName', (req, res) => {
+    const projectName = req.params.projectName;
+    
+    kumo.select('Files', ['*'], 'project = ?', [projectName], (err, results) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ error: 'Database error' });
+        }
+        res.json(results);
     });
 });
 
